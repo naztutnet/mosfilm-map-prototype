@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f5f5f2" />
+    <meta name="description" content="Кликабельный демонстрационный прототип MOSFILM MAP" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css?v=7" />
+    <title>MOSFILM MAP — прототип</title>
+  </head>
+  <body>
+    <div class="desktop-stage" aria-hidden="true">
+      <p class="stage-kicker">MVP / 01</p>
+      <h1>Навигация по<br />территории<br />без лишних слов</h1>
+      <p class="stage-copy">Живой мобильный прототип для демонстрации IT-отделу.</p>
+      <div class="stage-legend">
+        <span><i class="legend-line"></i> Маршрут</span>
+        <span><i class="legend-dot"></i> Точка QR</span>
+      </div>
+    </div>
+
+    <main id="app" class="app-shell" aria-live="polite">
+      <header class="topbar">
+        <button class="brand" data-action="home" aria-label="На главный экран">
+          <span class="brand-mark">М</span>
+          <span><b>MOSFILM</b><small>MAP · ПРОТОТИП</small></span>
+        </button>
+        <button class="connection-pill" data-action="toggle-offline" aria-label="Показать офлайн-режим">
+          <span class="signal-dot"></span><span id="connection-label">Карта загружена</span>
+        </button>
+      </header>
+
+      <section id="screen-map" class="screen active" aria-label="Карта">
+        <div class="map-search-wrap">
+          <button class="search-trigger" data-action="open-search">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m20 20-4.6-4.6m2.1-5.4a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" /></svg>
+            <span>Куда вам нужно?</span>
+            <kbd>Поиск</kbd>
+          </button>
+          <p class="prototype-note">Маршруты и карточки ниже — демонстрационные</p>
+        </div>
+
+        <div id="map-canvas" class="map-canvas">
+          <img src="assets/mosfilm-map-page.png" alt="Схема территории Мосфильма — визуальная основа прототипа" />
+          <div class="map-shade"></div>
+
+          <svg class="route-layer" viewBox="0 0 390 600" preserveAspectRatio="none" aria-hidden="true">
+            <path class="route-shadow" d="M205 566 C205 520 220 505 216 460 S184 398 193 344 S241 274 232 214 S221 160 171 111" />
+            <path class="route-path" d="M205 566 C205 520 220 505 216 460 S184 398 193 344 S241 274 232 214 S221 160 171 111" />
+          </svg>
+
+          <button class="map-marker marker-start" data-action="open-qr" aria-label="Текущая точка: главный вход">
+            <span class="pulse"></span>
+            <span class="marker-core"></span>
+          </button>
+          <button class="map-marker marker-destination" data-action="open-object" aria-label="Павильон номер 6">
+            <span>6</span>
+          </button>
+
+          <div class="map-controls">
+            <button data-action="center-map" aria-label="Показать моё местоположение">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v2m0 14v2M3 12h2m14 0h2m-5 0a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" /></svg>
+            </button>
+            <button data-action="zoom-map" aria-label="Увеличить карту"><span>+</span></button>
+          </div>
+
+          <div id="map-context" class="map-context">
+            <span class="eyebrow">СЕЙЧАС РЯДОМ</span>
+            <strong>Главный вход</strong>
+            <small>Точка старта выбрана для демонстрации</small>
+          </div>
+        </div>
+
+        <div class="map-bottom-panel">
+          <div class="panel-head">
+            <div><span class="eyebrow">БЫСТРЫЙ МАРШРУТ</span><h2>Павильон №6</h2></div>
+            <span class="demo-badge">ДЕМО</span>
+          </div>
+          <p>Семь понятных шагов от главного входа до точки внутри здания с переходом GPS → QR.</p>
+          <div class="route-meta">
+            <span><b>≈ 6 мин</b><small>расчёт прототипа</small></span>
+            <span><b>7 шагов</b><small>GPS → QR → прибытие</small></span>
+          </div>
+          <button class="primary-button" data-action="start-route">Посмотреть 7 шагов <span>→</span></button>
+        </div>
+      </section>
+
+      <section id="screen-services" class="screen content-screen" aria-label="Сервисы">
+        <div class="content-heading">
+          <span class="eyebrow">ЕДИНАЯ ТОЧКА ВХОДА</span>
+          <h2>Сервисы</h2>
+          <p>Что нужно сделать на территории — без поиска по разным страницам.</p>
+        </div>
+        <div class="service-grid">
+          <button class="service-card large" data-service="rooms">
+            <span class="service-icon">⌑</span><span><b>Найти помещение</b><small>Поиск и запрос бронирования</small></span><i>→</i>
+          </button>
+          <button class="service-card" data-service="food">
+            <span class="service-icon">◒</span><span><b>Где поесть</b><small>Карта точек</small></span><i>→</i>
+          </button>
+          <button class="service-card" data-service="actors">
+            <span class="service-icon">◎</span><span><b>Актёрские комплексы</b><small>Найти на карте</small></span><i>→</i>
+          </button>
+          <button class="service-card" data-service="auditions">
+            <span class="service-icon">▣</span><span><b>Ателье для проб</b><small>Инструкция и маршрут</small></span><i>→</i>
+          </button>
+          <button class="service-card large" data-service="admin">
+            <span class="service-icon">?</span><span><b>Административные инструкции</b><small>Короткие ответы для координатора</small></span><i>→</i>
+          </button>
+        </div>
+        <div class="concept-card">
+          <span class="concept-number">01</span>
+          <div><b>Offline-first</b><p>Схема, избранные объекты и инструкции доступны после первой загрузки. Это концепция, а не обещание готовой инфраструктуры.</p></div>
+        </div>
+      </section>
+
+      <section id="screen-passes" class="screen content-screen" aria-label="Пропуска">
+        <div class="content-heading">
+          <span class="eyebrow">СЦЕНАРИЙ ЗАЯВКИ</span>
+          <h2>Пропуска</h2>
+          <p>Демонстрационный конструктор: выберите кому и на какой срок.</p>
+        </div>
+        <div class="segmented" role="tablist" aria-label="Тип пропуска">
+          <button class="active" data-pass-target="person">Человеку</button>
+          <button data-pass-target="car">Автомобилю</button>
+        </div>
+        <div class="pass-options">
+          <button class="pass-option selected" data-pass-term="once"><span class="radio"></span><span><b>Разовый</b><small>Один визит · демо-сценарий</small></span></button>
+          <button class="pass-option" data-pass-term="quarter"><span class="radio"></span><span><b>Квартальный</b><small>Длительный доступ · демо-сценарий</small></span></button>
+        </div>
+        <div class="form-card">
+          <div class="form-progress"><span class="active"></span><span></span><span></span></div>
+          <span class="eyebrow">ШАГ 1 ИЗ 3</span>
+          <h3 id="pass-form-title">Кого нужно пропустить?</h3>
+          <label><span id="pass-field-label">Фамилия и имя</span><input id="pass-name" autocomplete="off" placeholder="Например, Анна Смирнова" /></label>
+          <label><span>Дата визита</span><input type="date" value="2026-09-02" /></label>
+          <p class="form-disclaimer">Поля и порядок согласования требуют проверки с ответственными подразделениями Мосфильма.</p>
+          <button class="primary-button" data-action="continue-pass">Продолжить <span>→</span></button>
+        </div>
+      </section>
+
+      <section id="screen-help" class="screen content-screen" aria-label="Помощь">
+        <div class="content-heading">
+          <span class="eyebrow">ПОМОЩЬ НА МЕСТЕ</span>
+          <h2>Что подсказать?</h2>
+          <p>Короткие ответы и маршруты для типовых ситуаций.</p>
+        </div>
+        <button class="help-hero" data-action="open-qr">
+          <span class="qr-mini" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span><b>Определить, где я</b><small>Сканировать QR-метку в здании</small></span><i>→</i>
+        </button>
+        <div class="faq-list">
+          <button data-faq="lost"><span>Я заблудился</span><i>+</i></button>
+          <button data-faq="pass"><span>Где получить пропуск?</span><i>+</i></button>
+          <button data-faq="offline"><span>Работает ли карта без сети?</span><i>+</i></button>
+          <button data-faq="access"><span>Доступный маршрут</span><i>+</i></button>
+        </div>
+        <div class="hybrid-card">
+          <span class="hybrid-title">GPS <i>+</i> QR</span>
+          <p>На улице сервис использует геопозицию телефона. Внутри здания пользователь сканирует метку и получает точную стартовую точку.</p>
+          <span class="demo-badge">КОНЦЕПЦИЯ</span>
+        </div>
+      </section>
+
+      <nav class="bottom-nav" aria-label="Основная навигация">
+        <button class="active" data-screen="map"><svg viewBox="0 0 24 24"><path d="m3 6 5-2 8 3 5-2v13l-5 2-8-3-5 2V6Zm5-2v13m8-10v13" /></svg><span>Карта</span></button>
+        <button data-screen="services"><svg viewBox="0 0 24 24"><path d="M5 4h5v5H5V4Zm9 0h5v5h-5V4ZM5 14h5v5H5v-5Zm9 0h5v5h-5v-5Z" /></svg><span>Сервисы</span></button>
+        <button data-screen="passes"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5V5Zm3 4h8m-8 4h5m-5 3h8" /></svg><span>Пропуска</span></button>
+        <button data-screen="help"><svg viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm-2-12a2 2 0 1 1 3.6 1.2c-.7.9-1.6 1.2-1.6 2.8m0 3h.01" /></svg><span>Помощь</span></button>
+      </nav>
+
+      <div id="overlay" class="overlay" hidden></div>
+
+      <section id="search-sheet" class="sheet full-sheet" hidden aria-modal="true" role="dialog" aria-label="Поиск объектов">
+        <div class="sheet-top"><button data-action="close-sheets" aria-label="Закрыть">←</button><b>Поиск по территории</b><span></span></div>
+        <label class="search-field"><svg viewBox="0 0 24 24"><path d="m20 20-4.6-4.6m2.1-5.4a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" /></svg><input id="search-input" autofocus placeholder="Павильон, кафе, бюро…" /><button data-action="clear-search">×</button></label>
+        <div class="filter-row"><button class="active">Все</button><button>Павильоны</button><button>Сервисы</button><button>Еда</button></div>
+        <div class="results-meta"><span id="results-title">Популярные места</span><small>Демо-каталог</small></div>
+        <div id="search-results" class="search-results"></div>
+      </section>
+
+      <section id="object-sheet" class="sheet object-sheet" hidden aria-modal="true" role="dialog" aria-label="Карточка объекта">
+        <div class="drag-handle"></div>
+        <div class="object-visual">
+          <div class="studio-placeholder"><span>06</span><i></i><b>ВИЗУАЛ ОБЪЕКТА</b></div>
+          <span class="visual-label">Демонстрационное изображение</span>
+          <button data-action="close-sheets" aria-label="Закрыть">×</button>
+        </div>
+        <div class="object-content">
+          <div class="panel-head"><div><span class="eyebrow">ПАВИЛЬОН · ДЕМО-КАРТОЧКА</span><h2>Павильон №6</h2></div><button class="favorite" data-action="favorite" aria-label="Добавить в избранное">♡</button></div>
+          <p>Пример карточки объекта: назначение, режим доступа и контактные данные должны загружаться из проверенного источника Мосфильма.</p>
+          <div class="object-facts"><span><small>Статус</small><b>Требует проверки</b></span><span><small>Маршрут</small><b>GPS + QR</b></span></div>
+          <div class="nearby"><span class="eyebrow">ЧТО РЯДОМ · ПРИМЕР</span><div><span>Актёрские комплексы</span><span>Точки питания</span><span>Служебный вход</span></div><small>Состав объектов рядом указан только для демонстрации интерфейса.</small></div>
+          <button class="primary-button" data-action="start-route">Построить маршрут <span>→</span></button>
+        </div>
+      </section>
+
+      <section id="route-overview-sheet" class="sheet route-overview-sheet" hidden aria-modal="true" role="dialog" aria-label="Обзор маршрута к павильону номер 6">
+        <div class="drag-handle"></div>
+        <div class="route-active-head"><div><span class="route-live-dot"></span><span class="eyebrow">МАРШРУТ · ДЕМО</span></div><button data-action="close-sheets" aria-label="Закрыть">×</button></div>
+        <div class="route-overview-title"><span class="eyebrow">ОТ ВХОДА ДО ОБЪЕКТА</span><h2>Павильон №6</h2><p>Сначала GPS ведёт по территории, затем QR-метка задаёт точную позицию внутри здания.</p></div>
+        <div class="route-endpoints">
+          <span><i class="endpoint-dot start"></i><small>ОТКУДА</small><b>Главный вход</b></span>
+          <i class="endpoint-line"></i>
+          <span><i class="endpoint-dot finish"></i><small>КУДА</small><b>Павильон №6</b></span>
+        </div>
+        <div class="route-overview-meta"><span><b>≈ 6 мин</b><small>демо-расчёт</small></span><span><b>7 шагов</b><small>улица + здание</small></span><span><b>GPS + QR</b><small>гибридная навигация</small></span></div>
+        <div id="route-overview-list" class="route-overview-list"></div>
+        <button class="primary-button" data-action="begin-route">Начать по шагам <span>→</span></button>
+      </section>
+
+      <section id="route-sheet" class="sheet route-sheet" hidden aria-modal="true" role="dialog" aria-label="Пошаговый маршрут к павильону номер 6">
+        <div class="drag-handle"></div>
+        <div class="route-active-head"><div><span class="route-live-dot"></span><span id="route-step-label" class="eyebrow">ШАГ 1 ИЗ 7 · GPS</span></div><button data-action="close-route" aria-label="Закрыть маршрут">×</button></div>
+        <div class="route-step-main"><span id="route-step-symbol">↑</span><div><small id="route-step-now">СЕЙЧАС</small><h2 id="route-step-title">Выйдите от главного входа</h2><p id="route-step-copy">Держитесь правой стороны и двигайтесь по основной дороге.</p></div></div>
+        <div class="route-progress"><span id="route-progress-fill"></span></div>
+        <div class="route-step-context"><span id="route-context-icon">GPS</span><div><b id="route-context-title">Позиция определяется автоматически</b><small id="route-context-copy">Снаружи используется геопозиция телефона</small></div></div>
+        <div class="route-summary"><span><b id="route-remaining">≈ 6 мин</b><small>осталось по демо-маршруту</small></span><span><b id="route-mode">GPS</b><small id="route-mode-copy">наружная навигация</small></span></div>
+        <div class="route-step-actions">
+          <button id="route-prev" class="step-back" data-action="previous-route-step" aria-label="Предыдущий шаг">←</button>
+          <button id="route-next" class="primary-button" data-action="next-route-step">Следующий шаг <span>→</span></button>
+        </div>
+        <button class="route-all-steps" data-action="show-route-overview">Показать все 7 шагов</button>
+      </section>
+
+      <section id="qr-sheet" class="sheet full-sheet qr-sheet" hidden aria-modal="true" role="dialog" aria-label="QR позиционирование">
+        <div class="sheet-top inverse"><button data-action="close-sheets" aria-label="Закрыть">×</button><b>Определение точки</b><span class="demo-badge">ДЕМО</span></div>
+        <div class="scanner-copy"><span class="eyebrow">INDOOR-НАВИГАЦИЯ</span><h2>Наведите камеру<br />на QR-метку</h2><p>Метка задаёт точную стартовую позицию внутри здания. Камера в прототипе не используется.</p></div>
+        <div class="scanner-frame"><span></span><span></span><span></span><span></span><div class="fake-qr"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="scan-line"></div></div>
+        <button class="scan-demo-button" data-action="scan-demo">Сканировать демонстрационную метку</button>
+        <div class="privacy-note">Координата определяется по ID метки. Фото не сохраняется.</div>
+      </section>
+
+      <section id="service-sheet" class="sheet service-sheet" hidden aria-modal="true" role="dialog" aria-label="Сервис">
+        <div class="drag-handle"></div>
+        <div class="sheet-top"><button data-action="close-sheets">×</button><b id="service-sheet-kicker">Сервис</b><span class="demo-badge">ДЕМО</span></div>
+        <div class="service-detail-icon" id="service-detail-icon">⌑</div>
+        <h2 id="service-detail-title">Найти помещение</h2>
+        <p id="service-detail-copy">Подберите помещение по задаче и отправьте запрос ответственному подразделению.</p>
+        <div id="service-detail-steps" class="instruction-steps"></div>
+        <button class="primary-button" data-action="service-primary">Начать <span>→</span></button>
+        <small class="service-disclaimer">Порядок действий и получатели заявки — прототипные. Перед запуском требуется согласование.</small>
+      </section>
+
+      <div id="toast" class="toast" role="status" hidden><span>✓</span><p></p></div>
+    </main>
+
+    <script src="app.js?v=7"></script>
+  </body>
+</html>

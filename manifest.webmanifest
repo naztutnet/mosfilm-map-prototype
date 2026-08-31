@@ -1,0 +1,13 @@
+{
+  "name": "MOSFILM MAP — прототип",
+  "short_name": "MOSFILM MAP",
+  "description": "Демонстрационный прототип навигации и сервисов территории",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f5f2",
+  "theme_color": "#f5f5f2",
+  "lang": "ru",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
