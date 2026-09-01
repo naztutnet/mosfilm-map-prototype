@@ -7,7 +7,7 @@
     <meta name="description" content="Кликабельный демонстрационный прототип MOSFILM MAP" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=7" />
+    <link rel="stylesheet" href="styles.css?v=9" />
     <title>MOSFILM MAP — прототип</title>
   </head>
   <body>
@@ -49,7 +49,27 @@
           <svg class="route-layer" viewBox="0 0 390 600" preserveAspectRatio="none" aria-hidden="true">
             <path class="route-shadow" d="M205 566 C205 520 220 505 216 460 S184 398 193 344 S241 274 232 214 S221 160 171 111" />
             <path class="route-path" d="M205 566 C205 520 220 505 216 460 S184 398 193 344 S241 274 232 214 S221 160 171 111" />
+            <path id="route-complete-path" class="route-complete-path" pathLength="100" d="M205 566 C205 520 220 505 216 460 S184 398 193 344 S241 274 232 214 S221 160 171 111" />
+            <circle id="route-position-halo" class="route-position-halo" cx="205" cy="550" r="17" />
+            <circle id="route-position-dot" class="route-position-dot" cx="205" cy="550" r="7" />
           </svg>
+
+          <div class="indoor-floorplan" aria-hidden="true">
+            <div class="floor-topline"><span>ПАВИЛЬОН №6 · ЭТАЖ 1</span><b>СХЕМА-ПРОТОТИП</b></div>
+            <div class="floor-room floor-room-a"><span>ЛЕСТНИЦА</span></div>
+            <div class="floor-room floor-room-b"><span>СЛУЖЕБНАЯ</span></div>
+            <div class="floor-room floor-room-c"><span>ПАВИЛЬОН 6</span></div>
+            <div class="floor-room floor-room-d"><span>ТЕХНИЧЕСКАЯ</span></div>
+            <svg class="indoor-route-layer" viewBox="0 0 390 600" preserveAspectRatio="none">
+              <path class="indoor-route-shadow" d="M102 500 L102 382 Q102 346 138 346 L235 346 Q270 346 270 310 L270 184 Q270 152 302 152" />
+              <path class="indoor-route-path" d="M102 500 L102 382 Q102 346 138 346 L235 346 Q270 346 270 310 L270 184 Q270 152 302 152" />
+              <path id="indoor-complete-path" class="indoor-complete-path" pathLength="100" d="M102 500 L102 382 Q102 346 138 346 L235 346 Q270 346 270 310 L270 184 Q270 152 302 152" />
+              <circle id="indoor-position-halo" class="route-position-halo" cx="102" cy="500" r="17" />
+              <circle id="indoor-position-dot" class="route-position-dot" cx="102" cy="500" r="7" />
+            </svg>
+            <div class="floor-qr"><b>Q-18</b><small>ВЫ ЗДЕСЬ</small></div>
+            <div class="floor-destination">6</div>
+          </div>
 
           <button class="map-marker marker-start" data-action="open-qr" aria-label="Текущая точка: главный вход">
             <span class="pulse"></span>
@@ -120,24 +140,43 @@
         <div class="content-heading">
           <span class="eyebrow">СЦЕНАРИЙ ЗАЯВКИ</span>
           <h2>Пропуска</h2>
-          <p>Демонстрационный конструктор: выберите кому и на какой срок.</p>
+          <p>Заказ доступен координатору только после входа в портал 1С.</p>
         </div>
-        <div class="segmented" role="tablist" aria-label="Тип пропуска">
-          <button class="active" data-pass-target="person">Человеку</button>
-          <button data-pass-target="car">Автомобилю</button>
+        <div id="pass-auth-gate" class="pass-auth-gate">
+          <div class="portal-mark">1С</div>
+          <span class="eyebrow">ОБЯЗАТЕЛЬНЫЙ ШАГ · ДЕМО</span>
+          <h3>Войдите как координатор</h3>
+          <p>Сервис сначала подтверждает учётную запись в портале 1С и только затем открывает оформление пропусков.</p>
+          <div class="auth-flow">
+            <span><i>01</i><b>Портал 1С</b><small>демо-вход</small></span>
+            <span><i>02</i><b>Права</b><small>роль координатора</small></span>
+            <span><i>03</i><b>Заявка</b><small>доступ к форме</small></span>
+          </div>
+          <button class="primary-button" data-action="open-portal-login">Войти в портал 1С <span>→</span></button>
+          <small class="gate-disclaimer">Имитация интеграции без передачи реальных логинов и заявок</small>
         </div>
-        <div class="pass-options">
-          <button class="pass-option selected" data-pass-term="once"><span class="radio"></span><span><b>Разовый</b><small>Один визит · демо-сценарий</small></span></button>
-          <button class="pass-option" data-pass-term="quarter"><span class="radio"></span><span><b>Квартальный</b><small>Длительный доступ · демо-сценарий</small></span></button>
-        </div>
-        <div class="form-card">
-          <div class="form-progress"><span class="active"></span><span></span><span></span></div>
-          <span class="eyebrow">ШАГ 1 ИЗ 3</span>
-          <h3 id="pass-form-title">Кого нужно пропустить?</h3>
-          <label><span id="pass-field-label">Фамилия и имя</span><input id="pass-name" autocomplete="off" placeholder="Например, Анна Смирнова" /></label>
-          <label><span>Дата визита</span><input type="date" value="2026-09-02" /></label>
-          <p class="form-disclaimer">Поля и порядок согласования требуют проверки с ответственными подразделениями Мосфильма.</p>
-          <button class="primary-button" data-action="continue-pass">Продолжить <span>→</span></button>
+        <div id="pass-workspace" hidden>
+          <div class="auth-strip">
+            <span class="auth-avatar">АК</span><span><b>Анна · координатор</b><small>Демо-сессия портала 1С</small></span><button data-action="portal-logout">Выйти</button>
+          </div>
+          <div class="segmented" role="tablist" aria-label="Тип пропуска">
+            <button class="active" data-pass-target="person">Человеку</button>
+            <button data-pass-target="car">Автомобилю</button>
+          </div>
+          <div class="pass-options">
+            <button class="pass-option selected" data-pass-term="once"><span class="radio"></span><span><b>Разовый</b><small>Один визит · демо-сценарий</small></span></button>
+            <button class="pass-option" data-pass-term="quarter"><span class="radio"></span><span><b>Квартальный</b><small>Длительный доступ · демо-сценарий</small></span></button>
+          </div>
+          <div class="form-card">
+            <div id="pass-progress" class="form-progress"><span class="active"></span><span></span><span></span></div>
+            <span id="pass-step-label" class="eyebrow">ШАГ 1 ИЗ 3</span>
+            <div id="pass-step-body"></div>
+            <p class="form-disclaimer">Поля, проверки и согласования показаны как концепция и требуют сверки с процессом Мосфильма.</p>
+            <div class="pass-actions">
+              <button id="pass-prev" class="step-back" data-action="previous-pass-step" aria-label="Предыдущий шаг">←</button>
+              <button id="pass-next" class="primary-button" data-action="next-pass-step">Продолжить <span>→</span></button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -233,6 +272,25 @@
         <div class="privacy-note">Координата определяется по ID метки. Фото не сохраняется.</div>
       </section>
 
+      <section id="portal-login-sheet" class="sheet full-sheet portal-login-sheet" hidden aria-modal="true" role="dialog" aria-label="Демо-вход в портал 1С">
+        <div class="sheet-top"><button data-action="close-sheets" aria-label="Закрыть">←</button><b>Портал 1С</b><span class="demo-badge">ИМИТАЦИЯ</span></div>
+        <div class="portal-login-hero">
+          <div class="portal-mark large">1С</div>
+          <span class="eyebrow">ВХОД ДЛЯ КООРДИНАТОРА</span>
+          <h2>Подтвердите доступ</h2>
+          <p>В рабочей версии авторизация открывает портал 1С. Здесь показан безопасный демонстрационный сценарий.</p>
+        </div>
+        <div class="portal-status-flow">
+          <span class="active"><i>1</i><b>Учётная запись</b></span><span><i>2</i><b>Проверка роли</b></span><span><i>3</i><b>Возврат в MAP</b></span>
+        </div>
+        <div class="portal-login-form">
+          <label><span>Демо-логин</span><input id="portal-login" value="demo.coordinator" autocomplete="off" /></label>
+          <label><span>Демо-пароль</span><input id="portal-password" type="password" value="mosfilm-demo" autocomplete="off" /></label>
+          <button class="primary-button" data-action="portal-login">Войти в демо-режиме <span>→</span></button>
+        </div>
+        <div class="portal-security-note"><span>!</span><p><b>Только прототип</b><small>Не вводите реальные данные. Связи с 1С и отправки заявок нет.</small></p></div>
+      </section>
+
       <section id="service-sheet" class="sheet service-sheet" hidden aria-modal="true" role="dialog" aria-label="Сервис">
         <div class="drag-handle"></div>
         <div class="sheet-top"><button data-action="close-sheets">×</button><b id="service-sheet-kicker">Сервис</b><span class="demo-badge">ДЕМО</span></div>
@@ -247,6 +305,6 @@
       <div id="toast" class="toast" role="status" hidden><span>✓</span><p></p></div>
     </main>
 
-    <script src="app.js?v=7"></script>
+    <script src="app.js?v=9"></script>
   </body>
 </html>

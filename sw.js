@@ -1,4 +1,4 @@
-const CACHE = 'mosfilm-map-prototype-v7';
+const CACHE = 'mosfilm-map-prototype-v9';
 const ASSETS = [
   './',
   './index.html',

@@ -41,9 +41,23 @@ const routeSteps = [
   { symbol: '✓', title: 'Павильон №6 справа', copy: 'Вы пришли. Карточка объекта остаётся доступна на карте.', mode: 'На месте', modeCopy: 'маршрут завершён', remaining: '0 мин', contextIcon: '✓', contextTitle: 'Пункт назначения достигнут', contextCopy: 'Это демонстрационное завершение маршрута', action: 'complete' },
 ];
 
+const routeVisualStates = [
+  { x: '-52%', y: '-43%', scale: 1.12, cx: 205, cy: 550, progress: 5 },
+  { x: '-50%', y: '-47%', scale: 1.2, cx: 216, cy: 460, progress: 24 },
+  { x: '-54%', y: '-49%', scale: 1.27, cx: 193, cy: 344, progress: 44 },
+  { x: '-57%', y: '-51%', scale: 1.34, cx: 232, cy: 214, progress: 64 },
+  { x: '-59%', y: '-53%', scale: 1.4, cx: 210, cy: 160, progress: 76 },
+  { indoor: true, cx: 102, cy: 500, progress: 35 },
+  { indoor: true, cx: 302, cy: 152, progress: 100 },
+];
+
 let activeSheet = null;
 let selectedService = 'rooms';
 let currentRouteStep = 0;
+let selectedPassTarget = 'person';
+let selectedPassTerm = 'once';
+let passStep = 0;
+let passData = { subject: '', date: '2026-09-02', project: 'Демо-проект', destination: 'Павильон №6', purpose: 'Рабочий визит' };
 let toastTimer;
 
 function switchScreen(name) {
@@ -95,6 +109,7 @@ function renderRouteOverview() {
 
 function renderRouteStep() {
   const step = routeSteps[currentRouteStep];
+  const visual = routeVisualStates[currentRouteStep];
   const routeSheet = document.querySelector('#route-sheet');
   document.querySelector('#route-step-label').textContent = `ШАГ ${currentRouteStep + 1} ИЗ ${routeSteps.length} · ${step.mode}`;
   document.querySelector('#route-step-symbol').textContent = step.symbol;
@@ -116,12 +131,39 @@ function renderRouteStep() {
   context.classList.toggle('arrival', step.action === 'complete');
   routeSheet.classList.toggle('route-complete', step.action === 'complete');
   mapContext.innerHTML = `<span class="eyebrow">ШАГ ${currentRouteStep + 1} ИЗ ${routeSteps.length}</span><strong>${step.title}</strong><small>${step.mode} · ${step.remaining} осталось</small>`;
+
+  mapCanvas.classList.add('route-active', 'route-moving');
+  mapCanvas.classList.toggle('indoor-mode', Boolean(visual.indoor));
+  if (!visual.indoor) {
+    mapCanvas.style.setProperty('--map-x', visual.x);
+    mapCanvas.style.setProperty('--map-y', visual.y);
+    mapCanvas.style.setProperty('--map-scale', visual.scale);
+    document.querySelector('#route-position-dot').setAttribute('cx', visual.cx);
+    document.querySelector('#route-position-dot').setAttribute('cy', visual.cy);
+    document.querySelector('#route-position-halo').setAttribute('cx', visual.cx);
+    document.querySelector('#route-position-halo').setAttribute('cy', visual.cy);
+    document.querySelector('#route-complete-path').style.strokeDasharray = `${visual.progress} ${100 - visual.progress}`;
+  } else {
+    document.querySelector('#indoor-position-dot').setAttribute('cx', visual.cx);
+    document.querySelector('#indoor-position-dot').setAttribute('cy', visual.cy);
+    document.querySelector('#indoor-position-halo').setAttribute('cx', visual.cx);
+    document.querySelector('#indoor-position-halo').setAttribute('cy', visual.cy);
+    document.querySelector('#indoor-complete-path').style.strokeDasharray = `${visual.progress} ${100 - visual.progress}`;
+  }
+  clearTimeout(renderRouteStep.motionTimer);
+  renderRouteStep.motionTimer = setTimeout(() => mapCanvas.classList.remove('route-moving'), 850);
 }
 
 function startRoute() {
   switchScreen('map');
   currentRouteStep = 0;
   mapCanvas.classList.add('route-active');
+  mapCanvas.classList.remove('indoor-mode', 'zoomed');
+  const initialVisual = routeVisualStates[0];
+  mapCanvas.style.setProperty('--map-x', initialVisual.x);
+  mapCanvas.style.setProperty('--map-y', initialVisual.y);
+  mapCanvas.style.setProperty('--map-scale', initialVisual.scale);
+  document.querySelector('#route-complete-path').style.strokeDasharray = `${initialVisual.progress} ${100 - initialVisual.progress}`;
   mapContext.innerHTML = '<span class="eyebrow">МАРШРУТ ГОТОВ</span><strong>К Павильону №6</strong><small>7 шагов · GPS → QR</small>';
   renderRouteOverview();
   setTimeout(() => openSheet('route-overview-sheet'), 220);
@@ -158,7 +200,7 @@ function scanDemo() {
   closeSheets();
   switchScreen('map');
   currentRouteStep = 5;
-  mapCanvas.classList.add('route-active', 'zoomed');
+  mapCanvas.classList.add('route-active');
   mapContext.innerHTML = '<span class="eyebrow">ВЫ ЗДЕСЬ · QR Q-18</span><strong>Коридор, демонстрационная точка</strong><small>Позиция подтверждена меткой</small>';
   showToast('Точка определена. Маршрут внутри здания продолжен.');
   renderRouteStep();
@@ -191,11 +233,125 @@ function showToast(message) {
   toastTimer = setTimeout(() => { toast.hidden = true; }, 3200);
 }
 
+function escapeMarkup(value) {
+  return String(value).replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
+}
+
 function setPassTarget(target) {
+  selectedPassTarget = target;
+  passStep = 0;
   document.querySelectorAll('[data-pass-target]').forEach((button) => button.classList.toggle('active', button.dataset.passTarget === target));
-  document.querySelector('#pass-form-title').textContent = target === 'car' ? 'Какой автомобиль?' : 'Кого нужно пропустить?';
-  document.querySelector('#pass-field-label').textContent = target === 'car' ? 'Марка и госномер' : 'Фамилия и имя';
-  document.querySelector('#pass-name').placeholder = target === 'car' ? 'Например, А000АА 000' : 'Например, Анна Смирнова';
+  renderPassStep();
+}
+
+function setPassTerm(term) {
+  selectedPassTerm = term;
+  passStep = 0;
+  document.querySelectorAll('[data-pass-term]').forEach((option) => option.classList.toggle('selected', option.dataset.passTerm === term));
+  renderPassStep();
+  showToast(term === 'quarter' ? 'Выбран квартальный пропуск · демо-сценарий' : 'Выбран разовый пропуск · демо-сценарий');
+}
+
+function renderPassStep() {
+  const body = document.querySelector('#pass-step-body');
+  const progress = [...document.querySelectorAll('#pass-progress span')];
+  const label = document.querySelector('#pass-step-label');
+  const previous = document.querySelector('#pass-prev');
+  const next = document.querySelector('#pass-next');
+  const actions = document.querySelector('.pass-actions');
+  if (!body || document.querySelector('#pass-workspace').hidden) return;
+
+  progress.forEach((item, index) => item.classList.toggle('active', index <= Math.min(passStep, 2)));
+  previous.disabled = passStep === 0 || passStep === 3;
+  actions.hidden = passStep === 3;
+  label.textContent = passStep < 3 ? `ШАГ ${passStep + 1} ИЗ 3` : 'ЗАЯВКА СОЗДАНА · ДЕМО';
+
+  if (passStep === 0) {
+    const title = selectedPassTarget === 'car' ? 'Какой автомобиль' : 'Кого нужно пропустить';
+    const field = selectedPassTarget === 'car' ? 'Марка и госномер' : 'Фамилия и имя';
+    const placeholder = selectedPassTarget === 'car' ? 'Например, А000АА 000' : 'Например, Анна Смирнова';
+    body.innerHTML = `<h3>${title}</h3>
+      <label><span>${field}</span><input id="pass-subject" autocomplete="off" value="${escapeMarkup(passData.subject)}" placeholder="${placeholder}" /></label>
+      <label><span>${selectedPassTerm === 'quarter' ? 'Дата начала квартала' : 'Дата визита'}</span><input id="pass-date" type="date" value="${escapeMarkup(passData.date)}" /></label>`;
+    next.hidden = false;
+    next.innerHTML = 'Продолжить <span>→</span>';
+  } else if (passStep === 1) {
+    body.innerHTML = `<h3>Параметры доступа</h3>
+      <label><span>Компания или проект</span><input id="pass-project" autocomplete="off" value="${escapeMarkup(passData.project)}" /></label>
+      <label><span>Куда направляется</span><input id="pass-destination" autocomplete="off" value="${escapeMarkup(passData.destination)}" /></label>
+      <label><span>Цель визита</span><input id="pass-purpose" autocomplete="off" value="${escapeMarkup(passData.purpose)}" /></label>`;
+    next.hidden = false;
+    next.innerHTML = 'Проверить заявку <span>→</span>';
+  } else if (passStep === 2) {
+    body.innerHTML = `<h3>Проверьте перед отправкой</h3>
+      <div class="pass-review">
+        <span><small>Получатель</small><b>${escapeMarkup(passData.subject || 'Не указано')}</b></span>
+        <span><small>Тип</small><b>${selectedPassTarget === 'car' ? 'Автомобиль' : 'Человек'} · ${selectedPassTerm === 'quarter' ? 'квартальный' : 'разовый'}</b></span>
+        <span><small>Дата</small><b>${escapeMarkup(passData.date)}</b></span>
+        <span><small>Проект</small><b>${escapeMarkup(passData.project)}</b></span>
+        <span><small>Назначение</small><b>${escapeMarkup(passData.destination)}</b></span>
+      </div>`;
+    next.hidden = false;
+    next.innerHTML = 'Создать демо-заявку <span>→</span>';
+  } else {
+    body.innerHTML = `<div class="pass-success"><div class="success-icon">✓</div><h3>Заявка создана</h3><p>В прототипе она сохранена только в текущем сеансе и не отправлена в 1С.</p><span class="request-id">DEMO-1C-0248</span></div>`;
+  }
+}
+
+function collectPassStep() {
+  if (passStep === 0) {
+    const subject = document.querySelector('#pass-subject');
+    if (!subject.value.trim()) {
+      subject.focus();
+      showToast('Добавьте демонстрационные данные');
+      return false;
+    }
+    passData.subject = subject.value.trim();
+    passData.date = document.querySelector('#pass-date').value;
+  }
+  if (passStep === 1) {
+    passData.project = document.querySelector('#pass-project').value.trim() || 'Демо-проект';
+    passData.destination = document.querySelector('#pass-destination').value.trim() || 'Павильон №6';
+    passData.purpose = document.querySelector('#pass-purpose').value.trim() || 'Рабочий визит';
+  }
+  return true;
+}
+
+function nextPassStep() {
+  if (!collectPassStep()) return;
+  if (passStep < 3) passStep += 1;
+  renderPassStep();
+  if (passStep === 3) showToast('Демо-заявка создана локально и не отправлена в 1С');
+}
+
+function previousPassStep() {
+  if (passStep === 0 || passStep === 3) return;
+  passStep -= 1;
+  renderPassStep();
+}
+
+function portalLogin() {
+  const button = document.querySelector('#portal-login-sheet [data-action="portal-login"]');
+  button.disabled = true;
+  button.innerHTML = 'Проверяем роль координатора <span>···</span>';
+  document.querySelectorAll('.portal-status-flow span').forEach((item) => item.classList.add('active'));
+  setTimeout(() => {
+    closeSheets();
+    document.querySelector('#pass-auth-gate').hidden = true;
+    document.querySelector('#pass-workspace').hidden = false;
+    passStep = 0;
+    renderPassStep();
+    button.disabled = false;
+    button.innerHTML = 'Войти в демо-режиме <span>→</span>';
+    showToast('Демо-вход выполнен · роль координатора подтверждена');
+  }, 650);
+}
+
+function portalLogout() {
+  document.querySelector('#pass-auth-gate').hidden = false;
+  document.querySelector('#pass-workspace').hidden = true;
+  document.querySelectorAll('.portal-status-flow span').forEach((item, index) => item.classList.toggle('active', index === 0));
+  showToast('Демо-сессия портала 1С завершена');
 }
 
 document.addEventListener('click', (event) => {
@@ -206,11 +362,7 @@ document.addEventListener('click', (event) => {
   if (button.dataset.screen) switchScreen(button.dataset.screen);
   if (button.dataset.service) openService(button.dataset.service);
   if (button.dataset.passTarget) setPassTarget(button.dataset.passTarget);
-  if (button.dataset.passTerm) {
-    document.querySelectorAll('[data-pass-term]').forEach((option) => option.classList.toggle('selected', option === button));
-    const isQuarter = button.dataset.passTerm === 'quarter';
-    showToast(isQuarter ? 'Выбран квартальный пропуск. Состав полей изменится после согласования.' : 'Выбран разовый пропуск.');
-  }
+  if (button.dataset.passTerm) setPassTerm(button.dataset.passTerm);
   if (button.dataset.faq) {
     const existing = button.querySelector('.faq-answer');
     document.querySelectorAll('.faq-list button').forEach((item) => { if (item !== button) { item.classList.remove('open'); item.querySelector('.faq-answer')?.remove(); } });
@@ -237,8 +389,13 @@ document.addEventListener('click', (event) => {
     'close-route': finishRoute,
     'open-qr': openQR,
     'scan-demo': scanDemo,
-    'center-map': () => { mapCanvas.classList.remove('zoomed'); showToast('Карта центрирована по демонстрационной точке входа.'); },
+    'center-map': () => { mapCanvas.classList.remove('zoomed'); showToast('Карта центрирована по демонстрационной точке входа'); },
     'zoom-map': () => mapCanvas.classList.toggle('zoomed'),
+    'open-portal-login': () => openSheet('portal-login-sheet', false),
+    'portal-login': portalLogin,
+    'portal-logout': portalLogout,
+    'next-pass-step': nextPassStep,
+    'previous-pass-step': previousPassStep,
     'toggle-offline': () => {
       app.classList.toggle('offline');
       const offline = app.classList.contains('offline');
@@ -246,11 +403,6 @@ document.addEventListener('click', (event) => {
       showToast(offline ? 'Офлайн-демо: схема и инструкции остаются доступны.' : 'Онлайн-режим восстановлен.');
     },
     favorite: () => { button.classList.toggle('active'); button.textContent = button.classList.contains('active') ? '♥' : '♡'; showToast(button.classList.contains('active') ? 'Объект сохранён на устройстве.' : 'Объект удалён из сохранённых.'); },
-    'continue-pass': () => {
-      const value = document.querySelector('#pass-name').value.trim();
-      if (!value) { document.querySelector('#pass-name').focus(); showToast('Добавьте демонстрационные данные, чтобы продолжить.'); }
-      else showToast('Шаг 1 сохранён локально. Отправка заявки в прототипе отключена.');
-    },
     'service-primary': () => {
       closeSheets();
       if (selectedService === 'food' || selectedService === 'actors' || selectedService === 'auditions') { switchScreen('map'); showToast('Категория показана на карте в демонстрационном режиме.'); }
