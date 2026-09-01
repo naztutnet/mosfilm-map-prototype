@@ -7,7 +7,7 @@
   --soft: #e9e9e5;
   --red: #e30613;
   --red-dark: #b8000b;
-  --map: #05141b;
+  --map: #e8ecef;
   --radius: 22px;
   --safe-bottom: max(18px, env(safe-area-inset-bottom));
   color-scheme: light;
@@ -46,11 +46,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(227, 6, 19, 
 .search-trigger svg, .search-field svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; }
 .search-trigger span { margin-left: 11px; font-weight: 620; font-size: 15px; }
 .search-trigger kbd { margin-left: auto; border: 0; background: var(--soft); border-radius: 8px; padding: 7px 8px; font: 650 9px/1 ui-monospace, monospace; color: var(--muted); }
-.prototype-note { margin: 8px 5px 0; color: rgba(255,255,255,.72); font: 600 8px/1.3 ui-monospace, monospace; letter-spacing: .04em; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+.prototype-note { margin: 8px 5px 0; color: rgba(17,17,17,.64); font: 650 8px/1.3 ui-monospace, monospace; letter-spacing: .04em; text-shadow: 0 1px 2px rgba(255,255,255,.92); }
 .map-canvas { --map-x: -52%; --map-y: -43%; --map-scale: 1.12; position: relative; height: min(52dvh, 520px); min-height: 430px; overflow: hidden; background: var(--map); }
-.map-canvas > img { position: absolute; width: 1120px; height: 542px; max-width: none; left: 50%; top: 50%; transform: translate(var(--map-x), var(--map-y)) scale(var(--map-scale)); object-fit: contain; filter: contrast(1.08) saturate(1.04) brightness(1.08); transition: transform .78s cubic-bezier(.2,.82,.2,1), filter .3s ease, opacity .45s ease; }
-.map-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(2,14,20,.06) 12%, rgba(2,14,20,0) 58%, rgba(2,14,20,.18) 100%); }
-.route-active > img { filter: contrast(1.14) saturate(1.08) brightness(1.12); }
+.map-canvas > img { position: absolute; width: 1120px; height: 542px; max-width: none; left: 50%; top: 50%; transform: translate(var(--map-x), var(--map-y)) scale(var(--map-scale)); object-fit: contain; filter: invert(1) hue-rotate(180deg) saturate(.68) brightness(1.03) contrast(.92); transition: transform .78s cubic-bezier(.2,.82,.2,1), filter .3s ease, opacity .45s ease; }
+.map-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(255,255,255,.14) 10%, rgba(255,255,255,0) 48%, rgba(255,255,255,.22) 100%); }
+.route-active > img { filter: invert(1) hue-rotate(180deg) saturate(.78) brightness(1.05) contrast(.96); }
 .map-canvas.zoomed:not(.route-active) { --map-x: -54%; --map-y: -43%; --map-scale: 1.38; }
 .route-layer { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transform: scale(.96); transition: opacity .35s, transform .7s cubic-bezier(.2,.8,.2,1); }
 .route-active .route-layer { opacity: 1; transform: scale(1); }
