@@ -166,13 +166,13 @@ function startRoute() {
   document.querySelector('#route-complete-path').style.strokeDasharray = `${initialVisual.progress} ${100 - initialVisual.progress}`;
   mapContext.innerHTML = '<span class="eyebrow">МАРШРУТ ГОТОВ</span><strong>К Павильону №6</strong><small>7 шагов · GPS → QR</small>';
   renderRouteOverview();
-  setTimeout(() => openSheet('route-overview-sheet'), 220);
+  setTimeout(() => openSheet('route-overview-sheet', false), 220);
 }
 
 function beginRoute() {
   currentRouteStep = 0;
   renderRouteStep();
-  openSheet('route-sheet');
+  openSheet('route-sheet', false);
 }
 
 function nextRouteStep() {
@@ -191,7 +191,7 @@ function previousRouteStep() {
 
 function showRouteOverview() {
   renderRouteOverview();
-  openSheet('route-overview-sheet');
+  openSheet('route-overview-sheet', false);
 }
 
 function openQR() { openSheet('qr-sheet', false); }
@@ -204,7 +204,7 @@ function scanDemo() {
   mapContext.innerHTML = '<span class="eyebrow">ВЫ ЗДЕСЬ · QR Q-18</span><strong>Коридор, демонстрационная точка</strong><small>Позиция подтверждена меткой</small>';
   showToast('Точка определена. Маршрут внутри здания продолжен.');
   renderRouteStep();
-  setTimeout(() => openSheet('route-sheet'), 650);
+  setTimeout(() => openSheet('route-sheet', false), 650);
 }
 
 function finishRoute() {
